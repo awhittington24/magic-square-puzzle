@@ -1,0 +1,66 @@
+import random
+
+# Initialize the 5x5 grid with zeros
+grid = [[0 for _ in range(5)] for _ in range(5)]
+
+# Function to print the grid
+def print_grid(grid):
+    for row in grid:
+        print(" ".join(str(cell).rjust(2) for cell in row))
+
+# Function to check if a cell is empty
+def is_empty(cell):
+    return cell == 0
+
+# Function to check if the entered number is valid
+def is_valid_move(prev_num, curr_num):
+    if curr_num - prev_num != 1:
+        return False
+    return True
+
+# Function to find the adjacent empty cells
+def find_empty_neighbors(row, col):
+    neighbors = []
+    if row > 0 and is_empty(grid[row - 1][col]):
+        neighbors.append((row - 1, col))
+    if row < 4 and is_empty(grid[row + 1][col]):
+        neighbors.append((row + 1, col))
+    if col > 0 and is_empty(grid[row][col - 1]):
+        neighbors.append((row, col - 1))
+    if col < 4 and is_empty(grid[row][col + 1]):
+        neighbors.append((row, col + 1))
+    return neighbors
+
+# Place the number 1 in a random cell
+row_1 = random.randint(0, 4)
+col_1 = random.randint(0, 4)
+grid[row_1][col_1] = 1
+
+# Initialize the current number to 2
+current_number = 2
+
+# Main game loop
+while current_number <= 25:
+    print_grid(grid)
+    print(f"Enter the number {current_number}:")
+    row, col = map(int, input("Row and Column (e.g., '2 3'): ").split())
+    
+    if not (0 <= row < 5) or not (0 <= col < 5) or not is_empty(grid[row][col]):
+        print("Invalid input. Try again.")
+        continue
+
+    neighbors = find_empty_neighbors(row, col)
+    if not neighbors:
+        print("Invalid move. The cell must be adjacent to the previous number.")
+        continue
+
+    prev_number = current_number - 1
+    if not is_valid_move(prev_number, current_number):
+        print("Invalid move. The number must be entered in ascending order.")
+        continue
+
+    grid[row][col] = current_number
+    current_number += 1
+
+print("Congratulations! You've completed the magic square puzzle.")
+print_grid(grid)
