@@ -1,0 +1,40 @@
+import random
+
+# Create a 5x5 array filled with placeholders
+array = [['-' for _ in range(5)] for _ in range(5)]
+
+# Place '1' randomly in the array
+random_row = random.randint(0, 4)
+random_col = random.randint(0, 4)
+array[random_row][random_col] = '1'
+
+# Function to display the current state of the array
+def display_array(array):
+    for row in array:
+        print(" ".join(str(cell) for cell in row))
+
+# Initialize the next number to be filled by the user
+current_num = 2
+
+# Main game loop
+while current_num <= 25:
+    display_array(array)
+
+    try:
+        row = int(input(f"Enter row for {current_num}: "))
+        col = int(input(f"Enter column for {current_num}: "))
+    except ValueError:
+        print("Invalid input. Please enter a number.")
+        continue
+
+    if 0 <= row < 5 and 0 <= col < 5:
+        if array[row][col] == '-':
+            array[row][col] = str(current_num)
+            current_num += 1
+        else:
+            print("That spot is already filled. Try again.")
+    else:
+        print("Invalid coordinates. Please enter row and column values between 0 and 4.")
+
+print("Congratulations! You've completed the game.")
+
