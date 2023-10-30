@@ -5,11 +5,14 @@ class NumberFillGame:
     def __init__(self, root):
         self.root = root
         self.root.title("Number Fill Game")
-        self.current_number = 2  # Start with 2
+        self.current_number = 2
+        self.level = 1
         self.level_1_size = 5
+        self.level_2_size = 7
         self.level_1_board = [[0 for _ in range(self.level_1_size)] for _ in range(self.level_1_size)]
+        self.level_2_board = [[0 for _ in range(self.level_2_size)] for _ in range(self.level_2_size)]
 
-        self.label = tk.Label(root, text="Level 1")
+        self.label = tk.Label(root, text=f"Level {self.level}")
         self.label.grid()
 
         self.buttons = []
@@ -24,16 +27,50 @@ class NumberFillGame:
         self.generate_level_1_board()
 
     def generate_level_1_board(self):
+        # Generate a random '1' within the 5x5 array
         random_row, random_col = random.randint(0, self.level_1_size - 1), random.randint(0, self.level_1_size - 1)
         self.level_1_board[random_row][random_col] = 1
         self.update_buttons()
 
+    def generate_level_2_board(self):
+        # Find the location of '1' in level 1
+        for row in range(self.level_1_size):
+            for col in range(self.level_1_size):
+                if self.level_1_board[row][col] == 1:
+                    # Place '1' in level 2 at the same row and column
+                    self.level_2_board[row][col] = 1
+                    self.update_buttons()
+                    return
+
     def on_button_click(self, row, col):
-        if self.level_1_board[row][col] == 0 and 2 <= self.current_number <= 25:
-            if self.is_valid_move(row, col):
-                self.level_1_board[row][col] = self.current_number
+        if self.level == 1 and 2 <= self.current_number <= 25:
+            if 0 <= row < self.level_1_size and 0 <= col < self.level_1_size:
+                if self.level_1_board[row][col] == 0 and self.is_valid_move(row, col):
+                    self.level_1_board[row][col] = self.current_number
+                    self.current_number += 1
+                    self.update_buttons()
+
+                    if self.current_number == 26:
+                        self.show_congratulatory_message()
+                        self.level += 1
+                        self.label.config(text=f"Level {self.level}")
+                        self.expand_to_level_2()
+
+                else:
+                    self.show_invalid_move_message()
+            else:
+                self.show_invalid_move_message()
+
+        elif self.level == 2 and 2 <= self.current_number <= 25:
+            if self.is_valid_move_level_2(row, col):
+                self.level_2_board[row][col] = self.current_number
                 self.current_number += 1
                 self.update_buttons()
+
+                if self.current_number == 26:
+                    self.show_congratulatory_message()
+                    self.level += 1
+                    self.label.config(text=f"Level {self.level}")
 
     def is_valid_move(self, row, col):
         for dr in [-1, 0, 1]:
@@ -43,12 +80,53 @@ class NumberFillGame:
                     return True
         return False
 
+    def is_valid_move_level_2(self, row, col):
+        for r in range(self.level_2_size):
+            if self.level_2_board[r][col] == self.current_number - 1:
+                return True
+        for c in range(self.level_2_size):
+            if self.level_2_board[row][c] == self.current_number - 1:
+                return True
+        return False
+
+    def expand_to_level_2(self):
+        self.level_2_board = [[0 for _ in range(self.level_2_size)] for _ in range(self.level_2_size)]
+        self.generate_level_2_board()
+        self.level_1_size = self.level_2_size
+        for row in self.buttons:
+            for button in row:
+                button.destroy()
+        self.buttons = []
+        for row in range(self.level_2_size):
+            button_row = []
+            for col in range(self.level_2_size):
+                button = tk.Button(self.root, text="", width=5, height=2, command=lambda r=row, c=col: self.on_button_click(r, c))
+                button.grid(row=row + 1, column=col)
+                button_row.append(button)
+            self.buttons.append(button_row)
+
     def update_buttons(self):
+        if self.level == 1:
+            board = self.level_1_board
+        else:
+            board = self.level_2_board
+
         for row in range(self.level_1_size):
             for col in range(self.level_1_size):
-                value = self.level_1_board[row][col]
+                value = board[row][col]
                 if value > 0:
                     self.buttons[row][col].config(text=str(value))
+
+    def show_invalid_move_message(self):
+        invalid_move_label = tk.Label(self.root, text="Invalid Move. Try Again.")
+        invalid_move_label.grid()
+        self.root.after(2000, invalid_move_label.destroy)  # Display the message for 2 seconds
+
+    def show_congratulatory_message(self):
+        congratulatory_message = f"Congratulations! You have completed Level {self.level}."
+        congratulatory_label = tk.Label(self.root, text=congratulatory_message)
+        congratulatory_label.grid()
+        self.root.after(2000, congratulatory_label.destroy)  # Display the message for 2 seconds
 
 def main():
     root = tk.Tk()
@@ -57,3 +135,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
