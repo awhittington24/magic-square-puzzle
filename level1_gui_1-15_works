@@ -1,0 +1,59 @@
+import tkinter as tk
+import random
+
+class NumberFillGame:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Number Fill Game")
+        self.current_number = 2  # Start with 2
+        self.level_1_size = 5
+        self.level_1_board = [[0 for _ in range(self.level_1_size)] for _ in range(self.level_1_size)]
+
+        self.label = tk.Label(root, text="Level 1")
+        self.label.grid()
+
+        self.buttons = []
+        for row in range(self.level_1_size):
+            button_row = []
+            for col in range(self.level_1_size):
+                button = tk.Button(root, text="", width=5, height=2, command=lambda r=row, c=col: self.on_button_click(r, c))
+                button.grid(row=row + 1, column=col)
+                button_row.append(button)
+            self.buttons.append(button_row)
+
+        self.generate_level_1_board()
+
+    def generate_level_1_board(self):
+        random_row, random_col = random.randint(0, self.level_1_size - 1), random.randint(0, self.level_1_size - 1)
+        self.level_1_board[random_row][random_col] = 1
+        self.update_buttons()
+
+    def on_button_click(self, row, col):
+        if self.level_1_board[row][col] == 0 and 2 <= self.current_number <= 25:
+            if self.is_valid_move(row, col):
+                self.level_1_board[row][col] = self.current_number
+                self.current_number += 1
+                self.update_buttons()
+
+    def is_valid_move(self, row, col):
+        for dr in [-1, 0, 1]:
+            for dc in [-1, 0, 1]:
+                new_row, new_col = row + dr, col + dc
+                if 0 <= new_row < self.level_1_size and 0 <= new_col < self.level_1_size and self.level_1_board[new_row][new_col] == self.current_number - 1:
+                    return True
+        return False
+
+    def update_buttons(self):
+        for row in range(self.level_1_size):
+            for col in range(self.level_1_size):
+                value = self.level_1_board[row][col]
+                if value > 0:
+                    self.buttons[row][col].config(text=str(value))
+
+def main():
+    root = tk.Tk()
+    game = NumberFillGame(root)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
