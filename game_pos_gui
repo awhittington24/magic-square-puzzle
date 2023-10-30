@@ -35,6 +35,7 @@ class NumberFillGame:
         self.outer_board[random_row][random_col] = 1
         self.update_buttons()
 
+#adding example to test level2 does not impact main
     def example_pass:
         pass
 
