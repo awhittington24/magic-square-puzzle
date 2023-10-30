@@ -35,6 +35,9 @@ class NumberFillGame:
         self.outer_board[random_row][random_col] = 1
         self.update_buttons()
 
+    def example_pass:
+        pass
+
     def on_button_click(self, row, col):
         if self.level == 1:
             if 0 <= row < self.inner_board_size and 0 <= col < self.inner_board_size:
