@@ -1,0 +1,62 @@
+import random
+import tkinter as tk
+from tkinter import messagebox
+
+# Create a 5x5 array filled with placeholders
+array = [['-' for _ in range(5)] for _ in range(5)]
+
+# Place '1' randomly in the array
+random_row = random.randint(0, 4)
+random_col = random.randint(0, 4)
+array[random_row][random_col] = '1'
+
+# Function to display the current state of the array in the GUI
+def display_array_gui(array, label):
+    text = '\n'.join([' '.join(str(cell) for cell in row) for row in array])
+    label.config(text=text)
+
+# Function to handle user input
+def handle_input(row_entry, col_entry, label, current_num_label, root):
+    row = int(row_entry.get())
+    col = int(col_entry.get())
+
+    if 0 <= row < 5 and 0 <= col < 5:
+        if array[row][col] == '-':
+            array[row][col] = str(current_num_label.cget("text"))
+            display_array_gui(array, label)
+            if int(current_num_label.cget("text")) < 25:
+                current_num_label.config(text=str(int(current_num_label.cget("text")) + 1))
+            else:
+                messagebox.showinfo("Congratulations", "You've completed the game!")
+                root.quit()
+        else:
+            messagebox.showinfo("Error", "That spot is already filled. Try again.")
+    else:
+        messagebox.showinfo("Error", "Invalid coordinates. Please enter row and column values between 0 and 4.")
+
+# Create the GUI
+root = tk.Tk()
+root.title("Number Placement Game")
+
+label = tk.Label(root, text="", font=("Courier", 20))
+label.pack()
+
+row_label = tk.Label(root, text="Row:")
+row_label.pack()
+row_entry = tk.Entry(root)
+row_entry.pack()
+
+col_label = tk.Label(root, text="Column:")
+col_label.pack()
+col_entry = tk.Entry(root)
+col_entry.pack()
+
+current_num_label = tk.Label(root, text="2")
+current_num_label.pack()
+
+submit_button = tk.Button(root, text="Submit", command=lambda: handle_input(row_entry, col_entry, label, current_num_label, root))
+submit_button.pack()
+
+display_array_gui(array, label)
+
+root.mainloop()
