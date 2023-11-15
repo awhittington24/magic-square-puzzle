@@ -21,8 +21,9 @@ def display_array_gui(array, label):
     text = '\n'.join([' '.join(str(cell) for cell in row) for row in array])
     label.config(text=text)
 
-# Function to check if the row and column are adjacent to the previous number entered
-def is_adjacent(row, col, prev_row, prev_col):
+# Function to check if the row and column are adjacent to the predecessor of the number to be entered
+def is_adjacent(row, col, predecessor):
+    prev_row, prev_col, _ = predecessor
     return abs(row - prev_row) <= 1 and abs(col - prev_col) <= 1
 
 # Function to handle user input
@@ -32,10 +33,10 @@ def handle_input(entry_widgets, label, current_num_label, root, undo_button):
         col = int(entry_widgets[1].get())
 
         if 0 <= row < 5 and 0 <= col < 5:
-            prev_row, prev_col, _ = undo_stack[-1]
-            if array[row][col] == '-' and is_adjacent(row, col, prev_row, prev_col):
+            predecessor = undo_stack[-1]
+            if array[row][col] == '-' and is_adjacent(row, col, predecessor):
                 backup_array = [row[:] for row in array]  # Create a deep copy of the array for undo
-                undo_stack.append(backup_array)
+                undo_stack.append((row, col, backup_array))
 
                 array[row][col] = str(current_num_label.cget("text"))
                 display_array_gui(array, label)
@@ -46,7 +47,7 @@ def handle_input(entry_widgets, label, current_num_label, root, undo_button):
                     messagebox.showinfo("Congratulations", "You've completed the game!")
                     root.quit()
             else:
-                messagebox.showinfo("Error", "Invalid spot. The cell must be adjacent to the previous number entered.")
+                messagebox.showinfo("Error", "Invalid spot. The cell must be adjacent to the predecessor of the number to be entered.")
         else:
             messagebox.showinfo("Error", "Invalid coordinates. Please enter row and column values between 0 and 4.")
     except ValueError:
@@ -61,14 +62,16 @@ def reset_entry(entry_widgets):
 
 # Function to handle the undo operation
 def handle_undo(label, undo_button):
-    if len(undo_stack) > 1:  # Ensure there is a previous state to revert to
-        array = undo_stack.pop()
-        display_array_gui(array[-1], label)  # Display the previous state
+    if len(undo_stack) > 1:
+        array = undo_stack[-1][2]
+        undo_stack.pop()
+
+        display_array_gui(array, label)
     update_undo_button(undo_button)
 
 # Function to update the state of the undo button
 def update_undo_button(undo_button):
-    if len(undo_stack) > 1:  # Enable the undo button if there is a previous state to revert to
+    if len(undo_stack) > 1:
         undo_button.config(state="active")
     else:
         undo_button.config(state="disabled")
