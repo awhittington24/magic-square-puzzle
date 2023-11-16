@@ -1,0 +1,93 @@
+import random
+class Game1:
+    def __init__(self):
+        # Create a 5x5 array filled with placeholders
+        self.array = [['-' for _ in range(5)] for _ in range(5)]
+        self.grid = [['-' for _ in range(7)] for _ in range(7)]
+        self.level = 1
+        self.current_num = 2
+        self.completed = False
+
+    def make_level(self):
+        if self.level == 1 and not self.completed:
+            random_row = random.randint(1, 5)
+            random_col = random.randint(1, 5)
+            # Place '1' randomly in the array
+            self.array[random_row][random_col] = '1'
+        elif self.completed:
+            for y in range(5):
+                for x in range(5):
+                    self.grid[y + 1][x + 1] = self.array[y][x]
+
+
+
+# Function to display the current state of the array
+    def display_array(self):
+        for row in self.array:
+            if not self.completed:
+                print(" ".join(str(cell) for cell in row))
+        for row in self.grid:
+            if self.completed:
+                print(" ".join(str(cell) for cell in row))
+
+
+    def main_loop(self):
+        self.make_level()
+
+        # Main game loop
+        while self.current_num <= 25:
+
+
+            try:
+                self.display_array()
+                row = int(input(f"Enter row for {self.current_num}: "))
+                col = int(input(f"Enter column for {self.current_num}: "))
+
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+                continue
+            if 0 < row < 6 and 0 < col < 6:
+                if self.array[row - 1][col-1] == '-':
+                   self.array[row-1][col-1] = str(self.current_num)
+                   self.current_num += 1
+                else:
+                    print("That spot is already filled. Try again.")
+            else:
+                print("Invalid coordinates. Please enter row and column values between 1 and 5.")
+        self.level += 1
+        self.completed = True
+        print("Congratulations! You've completed the game. You are now on level {}".format(self.level))
+
+
+        while self.completed and self.current_num<=25:
+            try:
+                self.display_array()
+                row = int(input(f"Enter row for {self.current_num}: "))
+                col = int(input(f"Enter column for {self.current_num}: "))
+
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+                continue
+            if 0 < row < 6 and 0 < col < 6:
+                if self.grid[row - 1][col - 1] == '-':
+                    self.grid[row - 1][col - 1] = str(self.current_num)
+                    self.current_num += 1
+                else:
+                    print("That spot is already filled. Try again.")
+            else:
+                print("Invalid coordinates. Please enter row and column values between 1 and 5.")
+        self.level += 1
+        print("Congratulations! You've completed the game. You are now on level {}".format(self.level))
+
+
+
+
+
+
+
+
+game = Game1()
+game.main_loop()
+
+
+
